@@ -102,7 +102,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({ language }) => {
           </label>
         </div>
         <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '6px' }}>
-          Reduz k em 20% (área não inclui chaminé)
+          Reduz a área efetiva (área bruta − chaminé)
         </div>
 
         {params.hasHole && (
@@ -164,10 +164,16 @@ export const InputPanel: React.FC<InputPanelProps> = ({ language }) => {
             <div className="design-param">
               <div className="design-param-label">Área Necessária</div>
               <div className="design-param-value">
-                {(
-                  (2 * (params.mass / 1000) * 9.81) /
-                  (params.airDensity * params.targetVelocity ** 2 * (params.hasHole ? params.dragCoefficient * 0.8 : params.dragCoefficient))
-                ).toFixed(3)}
+                {(() => {
+                  const massKg = params.mass / 1000;
+                  const requiredEffectiveArea = (2 * massKg * 9.81) / (params.airDensity * params.dragCoefficient * params.targetVelocity ** 2);
+                  
+                  if (params.hasHole) {
+                    const holeAreaM2 = (Math.PI * Math.pow(params.holeRadius, 2)) / 10000;
+                    return (requiredEffectiveArea + holeAreaM2).toFixed(3);
+                  }
+                  return requiredEffectiveArea.toFixed(3);
+                })()}
               </div>
               <div className="input-unit">m²</div>
             </div>

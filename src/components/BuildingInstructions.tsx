@@ -17,14 +17,14 @@ export const BuildingInstructions: React.FC<BuildingInstructionsProps> = ({ data
 
   const diameter = diameterFromArea(data.parachuteArea);
   const radius = diameter / 2;
-  const holeArea = Math.PI * Math.pow(data.holeRadius, 2);
+  const holeAreaCm2 = Math.PI * Math.pow(data.holeRadius, 2);
 
-  // Calcular velocidade terminal
+  // Calcular velocidade terminal (com área efetiva = área bruta - chaminé)
   const G = 9.81;
-  const effectiveCd = data.dragCoefficient * (data.hasHole ? 0.8 : 1);
-  const effectiveArea = data.parachuteArea / 10000;
+  const effectiveAreaCm2 = data.hasHole ? data.parachuteArea - holeAreaCm2 : data.parachuteArea;
+  const effectiveAreaM2 = effectiveAreaCm2 / 10000;
   const massKg = data.totalMass / 1000;
-  const terminalVelocity = Math.sqrt((2 * massKg * G) / (data.airDensity * effectiveCd * effectiveArea));
+  const terminalVelocity = Math.sqrt((2 * massKg * G) / (data.airDensity * data.dragCoefficient * effectiveAreaM2));
 
   return (
     <div ref={contentRef} style={{ 
@@ -72,9 +72,9 @@ export const BuildingInstructions: React.FC<BuildingInstructionsProps> = ({ data
                   <td style={{ padding: '6px', color: '#000', fontWeight: 'bold' }}>{data.holeRadius.toFixed(1)} cm</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '6px', color: '#000' }}>Área da Chaminé:</td>
-                  <td style={{ padding: '6px', color: '#000', fontWeight: 'bold' }}>{holeArea.toFixed(0)} cm²</td>
-                </tr>
+                   <td style={{ padding: '6px', color: '#000' }}>Área da Chaminé:</td>
+                   <td style={{ padding: '6px', color: '#000', fontWeight: 'bold' }}>{holeAreaCm2.toFixed(0)} cm²</td>
+                 </tr>
               </>
             )}
           </tbody>
